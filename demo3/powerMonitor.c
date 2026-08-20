@@ -10,7 +10,6 @@
 
 int main(){
     mkfifo("power_pipe", 0666);
-    int fd = open("power_pipe",O_WRONLY);
     printf("================================\n");
     printf("          Power Mointor      \n");
     printf("================================\n");
@@ -22,12 +21,18 @@ int main(){
         printf("Enter 1 to simulate power failure\n");
         printf("Enter -1 to quit\n");
         printf(">");
+
+        scanf("%d",&status);
     }
 
     if(status == 1){
+        int fd = open("power_pipe", O_WRONLY);
+        if (fd == -1) {
+            perror("Could not open power pipe");
+            return 1;
+        }
         write(fd,&status,sizeof(status));
-        
+        close(fd);
     }
-    close(fd);
     return 0 ;
 }
