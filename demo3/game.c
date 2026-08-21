@@ -18,6 +18,7 @@ struct GameState {
 };
 
 struct GameState currentGameState;
+int gameRunning = 1;
 
 void startGame(){
     currentGameState.level = 1;
@@ -64,15 +65,47 @@ void save_checkPoint() {
 }
 
 void* saveTimer(void* arg){
-    while (1) {
+
+    while(gameRunning){
+
         save_checkPoint();
-        sleep(30);
+
+        for(int i = 0; i < 30 && gameRunning; i++){
+            sleep(1);
+        }
     }
+
     return NULL;
 }
 
-int main(){
+void* urgentSave(void* arg){
+    while(gameRunning){
+        int fd = open("game_pipe", O_RDONLY);
+        int urgentSave = 0;
+        read(fd,&urgentSave,sizeof(urgentSave));
+        close(fd);
+        if(urgentSave == 1){
+            
+            save_checkPoint();
 
+            int response = 1;
+            int fd2 = open("game_response",O_WRONLY);
+            write(fd2,&response,sizeof(response));
+            close(fd2);
+
+            if (response == 1) {
+
+                printf("Urgent checkpoint saved. Stopping game...\n");
+                gameRunning = 0;
+
+                }
+        }
+    }   
+}
+
+int main(){
+    pthread_t tid2;
+    pthread_create(&tid2,NULL, urgentSave,NULL);
     printf("== WELCOME TO DEMO 1 ==\n");
     printf("-- do you want to start from a new save ? YES/1 - NO/0\n");
 
@@ -99,10 +132,11 @@ int main(){
     
 
     int option = 0;
+    pthread_t tid;
+    pthread_create(&tid, NULL, saveTimer, NULL);
 
-    while(option != -1){
-        pthread_t tid;
-        pthread_create(&tid, NULL, saveTimer, NULL);
+    while(option != -1 && gameRunning){
+        
         printf("========== DEMO 1 ==========\n");
         printf("\n");
         printf("Level: %d \n",currentGameState.level);
@@ -123,9 +157,15 @@ int main(){
         case 3:
             fightAnEnemy();
             break;
+        case -1:
+            gameRunning = 0;
+            break;
+            
         default:
             break;
         }
+
+        
     }
 
     // printf("-- Do you which to save the game ? YES/1 - NO/0\n");
@@ -135,7 +175,8 @@ int main(){
     // if(save == 1){
     //     save_checkPoint();
     // }
-    
-
+    gameRunning = 0;
+    pthread_join(tid,NULL);
+    pthread_join(tid2,NULL);
     return 0;
 }
