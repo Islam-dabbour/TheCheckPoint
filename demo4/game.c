@@ -103,7 +103,11 @@ void* urgentSave(void* arg){
     }   
 }
 
-int main(){
+int main(int argc, char *argv[]){
+    int gameID = atoi(argv[1]);
+    char filename[64];
+    snprintf(filename, sizeof(filename), "checkpoint_%d.bin", gameID);
+
     pthread_t tid2;
     pthread_create(&tid2,NULL, urgentSave,NULL);
     printf("== WELCOME TO DEMO 1 ==\n");
@@ -116,7 +120,7 @@ int main(){
         printf("Starting new game...\n");
         startGame();
     }else{
-        int file = open("checkpoint.bin", O_RDONLY);
+        int file = open("filename", O_RDONLY);
         if(file == -1){
             printf("Couldnt find a check point to load from...\n");
             printf("Starting new game..\n");
