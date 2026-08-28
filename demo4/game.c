@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <pthread.h>
+#include <poll.h>
 
 
 struct GameState {
@@ -170,6 +171,18 @@ int main(int argc, char *argv[]){
         printf("-- Enter 4 to heal --\n");
         printf("============================\n");
         printf("-- ENTER -1 TO LEAVE THE GAME --\n");
+
+        struct pollfd input = {
+            .fd = STDIN_FILENO,
+            .events = POLLIN
+        };
+        int input_ready = poll(&input, 1, 1000);
+        if (!gameRunning) {
+            break;
+        }
+        if (input_ready <= 0 || !(input.revents & POLLIN)) {
+            continue;
+        }
 
         scanf("%d",&option);
 
