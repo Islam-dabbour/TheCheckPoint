@@ -43,6 +43,10 @@ void load_checkPoint(){
     char filename[64];
     snprintf(filename, sizeof(filename), "checkpoint_%d.bin", gameID);
     int file = open(filename, O_RDONLY, 0644);
+    if (file == -1) {
+        printf("Could not open checkpoint for loading.\n");
+        return;
+    }
     read(file, &currentGameState, sizeof(currentGameState));
     close(file);
 }
@@ -61,7 +65,9 @@ void save_checkPoint() {
         return;
     }
 
-    write(file, &currentGameState, sizeof(currentGameState));
+    if (write(file, &currentGameState, sizeof(currentGameState)) != sizeof(currentGameState)) {
+        printf("Could not write checkpoint.\n");
+    }
 
     close(file);
 
@@ -112,6 +118,11 @@ void* urgentSave(void* arg){
 }
 
 int main(int argc, char *argv[]){
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <game ID>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
     gameID = atoi(argv[1]);
     char filename[64];
     snprintf(filename, sizeof(filename), "checkpoint_%d.bin", gameID);
@@ -128,7 +139,7 @@ int main(int argc, char *argv[]){
         printf("Starting new game...\n");
         startGame();
     }else{
-        int file = open("filename", O_RDONLY);
+        int file = open(filename, O_RDONLY);
         if(file == -1){
             printf("Couldnt find a check point to load from...\n");
             printf("Starting new game..\n");
@@ -137,8 +148,6 @@ int main(int argc, char *argv[]){
             close(file);
             load_checkPoint();
             printf("Checkpoint found.\n");
-
-            printf("Last checkpoint: %s",ctime(&currentGameState.checkpointTime));
         }
     }
     
@@ -187,7 +196,10 @@ int main(int argc, char *argv[]){
     // if(save == 1){
     //     save_checkPoint();
     // }
+    save_checkPoint();
     gameRunning = 0;
+    pthread_cancel(tid);
+    pthread_cancel(tid2);
     pthread_join(tid,NULL);
     pthread_join(tid2,NULL);
     return 0;

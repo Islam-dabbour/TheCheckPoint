@@ -69,16 +69,15 @@ int main(){
             char gameID[16];
             snprintf(executable, sizeof(executable), "./game%d", i + 1);
             snprintf(gameID, sizeof(gameID), "%d", i + 1);
-            execlp("xterm", "xterm", "-e", executable, gameID, (char *)NULL);
+            execlp("xterm", "xterm", "-fa", "Monospace", "-fs", "12", "-e", executable, gameID, (char *)NULL);
 
             perror("Could not start game");
             _exit(EXIT_FAILURE);
         }
     }
-    for(int i = 0; i < WORKER_COUNT; i++){
-        wait(NULL);
-    }
+
     printf("\n[MANAGER] All workers created.\n");
+    fflush(stdout);
 
     // for (int i = 0; i < WORKER_COUNT; i++) {
     //     waitpid(processes[i], NULL, 0);
