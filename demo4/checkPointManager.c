@@ -10,6 +10,11 @@
 
 #define WORKER_COUNT 3
 
+struct applicationState{
+    int counter;
+    int x;
+    int y;
+};
 int main(){
     // mkfifo("game_pipe", 0666);
     // mkfifo("game_response", 0666);
@@ -53,8 +58,9 @@ int main(){
     for(int i = 0; i < WORKER_COUNT; i++){
         processes[i] = fork();
         if(processes[i] == 0){
-
+            //execlp("gnome-terminal", "gnome-terminal", "--", "bash", "-c", "echo 'Hello from child process!'; exec bash", (char *)NULL);
             printf("[WORKER %d] Started. PID = %d\n",i + 1, getpid());
+            struct applicationState currentState = {.counter = getpid() * 3, .x = getgid() + 3, .y = getegid()};
             sleep(5);
             printf("[WORKER %d] Finished. PID = %d\n",i + 1, getpid());
             break;
