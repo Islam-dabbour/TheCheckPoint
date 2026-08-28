@@ -78,7 +78,13 @@ int main(){
     for (int i = 0;i < WORKER_COUNT; i++){
         char pipe_name[64];
         sprintf(pipe_name, sizeof(pipe_name),"game%d_pipe",i);
-        mkfifo("pipe_name", 0666);
+        mkfifo(pipe_name, 0666);
+    }
+
+    for (int i = 0;i < WORKER_COUNT; i++){
+        char pipe_name[64];
+        sprintf(pipe_name, sizeof(pipe_name),"game%d_response",i);
+        mkfifo(pipe_name, 0666);
     }
 
     int status = 0;
