@@ -7,6 +7,8 @@
 #include <fcntl.h>
 #include <pthread.h>
 #include <sys/stat.h>
+#include <errno.h>
+#include <poll.h>
 
 #define WORKER_COUNT 3
 
@@ -95,26 +97,51 @@ int main(){
     close(fd);
 
     if (status == 1){
+        int game_running[WORKER_COUNT] = {0};
+
         for (int i = 0;i <WORKER_COUNT; i++){
             char pipe_name[64];
             snprintf(pipe_name, sizeof(pipe_name), "game%d_pipe", i + 1);
 
-            int fd2 = open(pipe_name, O_WRONLY);
+            int fd2 = open(pipe_name, O_WRONLY | O_NONBLOCK);
             if (fd2 == -1) {
-                perror("Could not open game pipe");
-                return 1;
+                if (errno == ENXIO) {
+                    printf("Game %d is not running.\n", i + 1);
+                } else {
+                    perror("Could not open game pipe");
+                }
+                continue;
             }
             write(fd2,&status,sizeof(status));
             close(fd2);
+            game_running[i] = 1;
         }
 
         for (int i = 0;i < WORKER_COUNT; i++){
+            if (!game_running[i]) {
+                continue;
+            }
+
             char pipe_name[64];
             snprintf(pipe_name, sizeof(pipe_name), "game%d_response", i + 1);
         
-            int fd3 = open(pipe_name, O_RDONLY);
+            int fd3 = open(pipe_name, O_RDONLY | O_NONBLOCK);
+            if (fd3 == -1) {
+                perror("Could not open response pipe");
+                continue;
+            }
+
+            struct pollfd response_pipe = {
+                .fd = fd3,
+                .events = POLLIN
+            };
+            int ready = poll(&response_pipe, 1, 5000);
             int response = 0;
-            read(fd3, &response,sizeof(response));
+            if (ready > 0 && (response_pipe.revents & POLLIN)) {
+                read(fd3, &response, sizeof(response));
+            } else if (ready == 0) {
+                printf("Game %d did not respond.\n", i + 1);
+            }
             close(fd3);
             if(response == 1){
                 printf("Game %d was saved successfully\n",i + 1);
