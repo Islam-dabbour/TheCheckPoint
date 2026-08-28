@@ -18,11 +18,8 @@
 int main(){
     // mkfifo("game_pipe", 0666);
     // mkfifo("game_response", 0666);
-    int fd = open("power_pipe", O_RDONLY);
-    if (fd == -1) {
-        perror("Could not open power pipe");
-        return 1;
-    }
+    //printf("111\n");
+
     // printf("================================\n");
     // printf("          Check Point Manager      \n");
     // printf("================================\n");
@@ -51,7 +48,17 @@ int main(){
     printf("================================\n");
 
     pid_t processes[WORKER_COUNT];
+    for (int i = 0;i < WORKER_COUNT; i++){
+        char pipe_name[64];
+        snprintf(pipe_name, sizeof(pipe_name), "game%d_pipe", i + 1);
+        mkfifo(pipe_name, 0666);
+    }
 
+    for (int i = 0;i < WORKER_COUNT; i++){
+        char pipe_name[64];
+        snprintf(pipe_name, sizeof(pipe_name), "game%d_response", i + 1);
+        mkfifo(pipe_name, 0666);
+    }
     for(int i = 0; i < WORKER_COUNT; i++){
         processes[i] = fork();
         if(processes[i] == 0){
@@ -68,34 +75,30 @@ int main(){
             _exit(EXIT_FAILURE);
         }
     }
-
+    for(int i = 0; i < WORKER_COUNT; i++){
+        wait(NULL);
+    }
     printf("\n[MANAGER] All workers created.\n");
 
     // for (int i = 0; i < WORKER_COUNT; i++) {
     //     waitpid(processes[i], NULL, 0);
     // }
 
-    for (int i = 0;i < WORKER_COUNT; i++){
-        char pipe_name[64];
-        snprintf(pipe_name, sizeof(pipe_name), "game%d_pipe", i);
-        mkfifo(pipe_name, 0666);
-    }
 
-    for (int i = 0;i < WORKER_COUNT; i++){
-        char pipe_name[64];
-        snprintf(pipe_name, sizeof(pipe_name), "game%d_response", i);
-        mkfifo(pipe_name, 0666);
-    }
 
     int status = 0;
-
+    int fd = open("power_pipe", O_RDONLY);
+    if (fd == -1) {
+        perror("Could not open power pipe");
+        return 1;
+    }
     read(fd,&status,sizeof(status));
     close(fd);
 
     if (status == 1){
         for (int i = 0;i <WORKER_COUNT; i++){
             char pipe_name[64];
-            snprintf(pipe_name, sizeof(pipe_name), "game%d_pipe", i);
+            snprintf(pipe_name, sizeof(pipe_name), "game%d_pipe", i + 1);
 
             int fd2 = open(pipe_name, O_WRONLY);
             if (fd2 == -1) {
@@ -108,14 +111,14 @@ int main(){
 
         for (int i = 0;i < WORKER_COUNT; i++){
             char pipe_name[64];
-            snprintf(pipe_name, sizeof(pipe_name), "game%d_response", i);
+            snprintf(pipe_name, sizeof(pipe_name), "game%d_response", i + 1);
         
             int fd3 = open(pipe_name, O_RDONLY);
             int response = 0;
             read(fd3, &response,sizeof(response));
             close(fd3);
             if(response == 1){
-                printf("Game %d was saved successfully\n",i);
+                printf("Game %d was saved successfully\n",i + 1);
             }
         }
     }

@@ -40,7 +40,9 @@ void heal(){
 }
 
 void load_checkPoint(){
-    int file = open("checkpoint.bin", O_RDONLY, 0644);
+    char filename[64];
+    snprintf(filename, sizeof(filename), "checkpoint_%d.bin", gameID);
+    int file = open(filename, O_RDONLY, 0644);
     read(file, &currentGameState, sizeof(currentGameState));
     close(file);
 }
@@ -48,8 +50,9 @@ void load_checkPoint(){
 void save_checkPoint() {
 
     currentGameState.checkpointTime = time(NULL);
-
-    int file = open("checkpoint.bin",
+    char filename[64];
+    snprintf(filename, sizeof(filename), "checkpoint_%d.bin", gameID);
+    int file = open(filename,
                     O_WRONLY | O_CREAT | O_TRUNC,
                     0644);
 
