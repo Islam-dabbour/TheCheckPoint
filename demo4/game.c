@@ -82,7 +82,7 @@ void* saveTimer(void* arg){
 void* urgentSave(void* arg){
     while(gameRunning){
         char pipe_name[64];
-        sprintf(pipe_name, sizeof(pipe_name),"game%d_pipe",gameID);
+        snprintf(pipe_name, sizeof(pipe_name),"game%d_pipe",gameID);
         int fd = open(pipe_name, O_RDONLY);
         int urgentSave = 0;
         read(fd,&urgentSave,sizeof(urgentSave));
@@ -93,7 +93,7 @@ void* urgentSave(void* arg){
 
             int response = 1;
             char pipe_name2[64];
-            sprintf(pipe_name2, sizeof(pipe_name2),"game%d_response",gameID);
+            snprintf(pipe_name2, sizeof(pipe_name2),"game%d_response",gameID);
             int fd2 = open(pipe_name2,O_WRONLY);
             write(fd2,&response,sizeof(response));
             close(fd2);

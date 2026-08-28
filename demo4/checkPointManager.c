@@ -47,7 +47,7 @@ int main(){
     // }
     printf(">> [MANAGER] Starting...\n");
     printf("================================\n");
-    printf("          Check Point Manager      \n");
+    printf("       Check Point Manager      \n");
     printf("================================\n");
 
     pid_t processes[WORKER_COUNT];
@@ -77,13 +77,13 @@ int main(){
 
     for (int i = 0;i < WORKER_COUNT; i++){
         char pipe_name[64];
-        sprintf(pipe_name, sizeof(pipe_name),"game%d_pipe",i);
+        snprintf(pipe_name, sizeof(pipe_name), "game%d_pipe", i);
         mkfifo(pipe_name, 0666);
     }
 
     for (int i = 0;i < WORKER_COUNT; i++){
         char pipe_name[64];
-        sprintf(pipe_name, sizeof(pipe_name),"game%d_response",i);
+        snprintf(pipe_name, sizeof(pipe_name), "game%d_response", i);
         mkfifo(pipe_name, 0666);
     }
 
@@ -95,7 +95,7 @@ int main(){
     if (status == 1){
         for (int i = 0;i <WORKER_COUNT; i++){
             char pipe_name[64];
-            sprintf(pipe_name, sizeof(pipe_name),"game%d_pipe",i);
+            snprintf(pipe_name, sizeof(pipe_name), "game%d_pipe", i);
 
             int fd2 = open(pipe_name, O_WRONLY);
             if (fd2 == -1) {
@@ -108,7 +108,7 @@ int main(){
 
         for (int i = 0;i < WORKER_COUNT; i++){
             char pipe_name[64];
-            sprintf(pipe_name, sizeof(pipe_name),"game%d_response",i);
+            snprintf(pipe_name, sizeof(pipe_name), "game%d_response", i);
         
             int fd3 = open(pipe_name, O_RDONLY);
             int response = 0;
