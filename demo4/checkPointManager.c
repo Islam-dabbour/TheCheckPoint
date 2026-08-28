@@ -69,7 +69,7 @@ int main(){
             char gameID[16];
             snprintf(executable, sizeof(executable), "./game%d", i + 1);
             snprintf(gameID, sizeof(gameID), "%d", i + 1);
-            execlp("gnome-terminal", "gnome-terminal", "--", executable, gameID, (char *)NULL);
+            execlp("xterm", "xterm", "-e", executable, gameID, (char *)NULL);
 
             perror("Could not start game");
             _exit(EXIT_FAILURE);
