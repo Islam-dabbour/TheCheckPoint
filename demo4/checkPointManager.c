@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include <sys/stat.h>
 
+#define WORKER_COUNT 3
 
 int main(){
     // mkfifo("game_pipe", 0666);
@@ -42,18 +43,31 @@ int main(){
     // if(response == 1){
     //     printf("The game was saved successfully\n");
     // }
-
+    printf(">> [MANAGER] Starting...\n");
     printf("================================\n");
     printf("          Check Point Manager      \n");
     printf("================================\n");
 
-    pid_t processes[3];
+    pid_t processes[WORKER_COUNT];
 
-    for(int i = 0; i < 3; i++){
+    for(int i = 0; i < WORKER_COUNT; i++){
         processes[i] = fork();
         if(processes[i] == 0){
+
+            printf("[WORKER %d] Started. PID = %d\n",i + 1, getpid());
+            sleep(5);
+            printf("[WORKER %d] Finished. PID = %d\n",i + 1, getpid());
             break;
         }
     }
+
+    printf("\n[MANAGER] All workers created.\n");
+
+    for (int i = 0; i < WORKER_COUNT; i++) {
+        waitpid(processes[i], NULL, 0);
+    }
+
+    printf("\n[MANAGER] All workers finished.\n");
+
     return 0;
 }
