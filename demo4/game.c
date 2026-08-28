@@ -19,6 +19,7 @@ struct GameState {
 
 struct GameState currentGameState;
 int gameRunning = 1;
+int gameID;
 
 void startGame(){
     currentGameState.level = 1;
@@ -80,7 +81,9 @@ void* saveTimer(void* arg){
 
 void* urgentSave(void* arg){
     while(gameRunning){
-        int fd = open("game_pipe", O_RDONLY);
+        char pipe_name[64];
+        sprintf(pipe_name, sizeof(pipe_name),"game%d_pipe",gameID);
+        int fd = open("pipe_name", O_RDONLY);
         int urgentSave = 0;
         read(fd,&urgentSave,sizeof(urgentSave));
         close(fd);
@@ -104,7 +107,7 @@ void* urgentSave(void* arg){
 }
 
 int main(int argc, char *argv[]){
-    int gameID = atoi(argv[1]);
+    gameID = atoi(argv[1]);
     char filename[64];
     snprintf(filename, sizeof(filename), "checkpoint_%d.bin", gameID);
 

@@ -18,19 +18,16 @@
 int main(){
     // mkfifo("game_pipe", 0666);
     // mkfifo("game_response", 0666);
-    // int fd = open("power_pipe", O_RDONLY);
-    // if (fd == -1) {
-    //     perror("Could not open power pipe");
-    //     return 1;
-    // }
+    int fd = open("power_pipe", O_RDONLY);
+    if (fd == -1) {
+        perror("Could not open power pipe");
+        return 1;
+    }
     // printf("================================\n");
     // printf("          Check Point Manager      \n");
     // printf("================================\n");
 
-    // int status = 0;
-
-    // read(fd,&status,sizeof(status));
-    // close(fd);
+    
 
     // if(status == 1){
     //     int fd2 = open("game_pipe", O_WRONLY);
@@ -74,11 +71,26 @@ int main(){
 
     printf("\n[MANAGER] All workers created.\n");
 
-    for (int i = 0; i < WORKER_COUNT; i++) {
-        waitpid(processes[i], NULL, 0);
+    // for (int i = 0; i < WORKER_COUNT; i++) {
+    //     waitpid(processes[i], NULL, 0);
+    // }
+
+    for (int i = 0;i < WORKER_COUNT; i++){
+        char pipe_name[64];
+        sprintf(pipe_name, sizeof(pipe_name),"game%d_pipe",i);
+        mkfifo("pipe_name", 0666);
     }
 
-    printf("\n[MANAGER] All workers finished.\n");
+    int status = 0;
+
+    read(fd,&status,sizeof(status));
+    close(fd);
+
+    if (status == 1){
+
+
+
+    }
 
     return 0;
 }
