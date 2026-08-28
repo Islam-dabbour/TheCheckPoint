@@ -61,9 +61,14 @@ int main(){
             //execlp("gnome-terminal", "gnome-terminal", "--", "bash", "-c", "echo 'Hello from child process!'; exec bash", (char *)NULL);
             printf("[WORKER %d] Started. PID = %d\n",i + 1, getpid());
             //struct applicationState currentState = {.counter = getpid() * 3, .x = getgid() + 3, .y = getegid()};
-            sleep(5);
-            printf("[WORKER %d] Finished. PID = %d\n",i + 1, getpid());
-            break;
+            char executable[64];
+            char gameID[16];
+            snprintf(executable, sizeof(executable), "./game%d", i + 1);
+            snprintf(gameID, sizeof(gameID), "%d", i + 1);
+            execlp("gnome-terminal", "gnome-terminal", "--", executable, gameID, (char *)NULL);
+
+            perror("Could not start game");
+            _exit(EXIT_FAILURE);
         }
     }
 
