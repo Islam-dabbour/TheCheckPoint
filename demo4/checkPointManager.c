@@ -93,9 +93,31 @@ int main(){
     close(fd);
 
     if (status == 1){
+        for (int i = 0;i <WORKER_COUNT; i++){
+            char pipe_name[64];
+            sprintf(pipe_name, sizeof(pipe_name),"game%d_pipe",i);
 
+            int fd2 = open(pipe_name, O_WRONLY);
+            if (fd2 == -1) {
+                perror("Could not open game pipe");
+                return 1;
+            }
+            write(fd2,&status,sizeof(status));
+            close(fd2);
+        }
 
-
+        for (int i = 0;i < WORKER_COUNT; i++){
+            char pipe_name[64];
+            sprintf(pipe_name, sizeof(pipe_name),"game%d_response",i);
+        
+            int fd3 = open(pipe_name, O_RDONLY);
+            int response = 0;
+            read(fd3, &response,sizeof(response));
+            close(fd3);
+            if(response == 1){
+                printf("Game %d was saved successfully\n",i);
+            }
+        }
     }
 
     return 0;
