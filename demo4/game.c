@@ -49,6 +49,8 @@ void load_checkPoint(){
         return;
     }
     read(file, &currentGameState, sizeof(currentGameState));
+
+
     close(file);
 }
 

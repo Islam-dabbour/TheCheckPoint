@@ -121,16 +121,16 @@ int main(){
             if (!game_running[i]) {
                 continue;
             }
-
+            
             char pipe_name[64];
             snprintf(pipe_name, sizeof(pipe_name), "game%d_response", i + 1);
-        
+            
             int fd3 = open(pipe_name, O_RDONLY | O_NONBLOCK);
             if (fd3 == -1) {
                 perror("Could not open response pipe");
                 continue;
             }
-            
+        
             
 
             struct pollfd response_pipe = {
