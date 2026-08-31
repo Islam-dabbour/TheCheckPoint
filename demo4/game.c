@@ -172,6 +172,9 @@ int main(int argc, char *argv[]){
         printf("============================\n");
         printf("-- ENTER -1 TO LEAVE THE GAME --\n");
 
+
+        // this is becuse when the urgent save happens, the program would have alredy enterd
+        // the next while loop, therefore is waiting for user input from the sacnf
         struct pollfd input = {
             .fd = STDIN_FILENO,
             .events = POLLIN

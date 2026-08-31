@@ -130,6 +130,8 @@ int main(){
                 perror("Could not open response pipe");
                 continue;
             }
+            
+            
 
             struct pollfd response_pipe = {
                 .fd = fd3,
